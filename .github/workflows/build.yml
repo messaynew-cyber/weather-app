@@ -19,33 +19,16 @@ jobs:
           flutter-version: "3.22.0"
           channel: stable
       - name: Bootstrap Flutter project
-        id: bootstrap
-        run: |
-          if [ ! -d "android" ]; then
-            flutter create --platforms android . 2>&1 | tee bootstrap.log
-          fi
-        continue-on-error: true
-      - name: ❌ Bootstrap Failed
-        if: steps.bootstrap.outcome == 'failure'
-        run: |
-          echo "## ❌ Bootstrap Failed — flutter create" >> $GITHUB_STEP_SUMMARY
-          echo '"```"' >> $GITHUB_STEP_SUMMARY
-          tail -30 bootstrap.log >> $GITHUB_STEP_SUMMARY
-          echo '"```"' >> $GITHUB_STEP_SUMMARY
-          echo "::error ::flutter create --platforms android . failed."
-          exit 1
+        run: flutter create --platforms android --project-name weather_app --org com.tobia .
       - run: flutter pub get
       - name: Build APK
         id: build_apk
         run: flutter build apk --release 2>&1 | tee build.log
         continue-on-error: true
-      - name: ✅ Build Succeeded
-        if: steps.build_apk.outcome == 'success'
-        run: echo "## ✅ Build Passed" >> $GITHUB_STEP_SUMMARY
-      - name: ❌ Capture Build Errors
+      - name: ❌ Build Failed
         if: steps.build_apk.outcome == 'failure'
         run: |
-          echo "## ❌ Build Failed — flutter build apk" >> $GITHUB_STEP_SUMMARY
+          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
           echo '"```"' >> $GITHUB_STEP_SUMMARY
           tail -80 build.log >> $GITHUB_STEP_SUMMARY
           echo '"```"' >> $GITHUB_STEP_SUMMARY
